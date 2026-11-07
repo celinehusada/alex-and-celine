@@ -1,3 +1,4 @@
+import { randomUUID } from 'node:crypto';
 import { readdir, readFile } from 'node:fs/promises';
 import path from 'node:path';
 import { PGlite } from '@electric-sql/pglite';
@@ -7,6 +8,10 @@ const databaseUrl = process.env.DATABASE_URL?.trim() ?? '';
 let pool: pg.Pool | undefined;
 let local: Promise<PGlite> | undefined;
 let seeded = false;
+
+function newInviteToken() {
+  return `inv_${randomUUID().replace(/-/g, '')}`;
+}
 
 export async function sql<T = Record<string, unknown>>(text: string, params: unknown[] = []): Promise<T[]> {
   if (databaseUrl !== '') {
@@ -21,7 +26,9 @@ export async function sql<T = Record<string, unknown>>(text: string, params: unk
 }
 
 async function startLocal(): Promise<PGlite> {
-  const db = new PGlite();
+  // Shared on-disk store so every Next route handler sees the same runtime-generated tokens.
+  const dataDir = path.join(process.cwd(), '.pglite-data');
+  const db = new PGlite(dataDir);
   const migrationsDir = path.join(process.cwd(), 'migrations');
   const files = (await readdir(migrationsDir).catch(() => [])).filter((f) => f.endsWith('.sql')).sort();
   for (const file of files) {
@@ -32,7 +39,7 @@ async function startLocal(): Promise<PGlite> {
 
 export async function ensureSeedData() {
   if (seeded) return;
-  const existing = await sql<{ count: string }>("select count(*)::text as count from invitations");
+  const existing = await sql<{ count: string }>('select count(*)::text as count from invitations');
   if (Number(existing[0]?.count ?? 0) > 0) {
     seeded = true;
     return;
@@ -48,19 +55,23 @@ export async function ensureSeedData() {
       [room.id, room.hotel, room.nights ?? 2, JSON.stringify(room.occupants), room.label ?? null]
     );
   }
+
   for (const invitation of seedInvitations) {
+    // Tokens are created at seed time only — never committed as source constants.
+    const token = newInviteToken();
     await sql(
-      `insert into invitations (id, token, party_name, members, invited_events, room_id, preview_hint)
-       values ($1, $2, $3, $4::jsonb, $5::jsonb, $6, $7)
+      `insert into invitations (id, token, party_name, members, invited_events, room_id, preview_hint, is_demo)
+       values ($1, $2, $3, $4::jsonb, $5::jsonb, $6, $7, $8)
        on conflict (id) do nothing`,
       [
         invitation.id,
-        invitation.token,
+        token,
         invitation.partyName,
         JSON.stringify(invitation.members),
         JSON.stringify(invitation.invitedEvents),
         invitation.roomId,
-        invitation.previewHint
+        invitation.previewHint,
+        invitation.isDemo === true
       ]
     );
   }

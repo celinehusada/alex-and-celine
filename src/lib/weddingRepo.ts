@@ -17,6 +17,7 @@ type InvitationRow = {
   invited_events: EventId[] | string;
   room_id: string | null;
   preview_hint: string;
+  is_demo?: boolean;
 };
 
 function parseJsonArray<T>(value: T[] | string): T[] {
@@ -58,6 +59,15 @@ export async function listWeddingData() {
   return { rooms, invitations };
 }
 
+async function withRoom(invitation: Invitation) {
+  let room: Room | null = null;
+  if (invitation.roomId) {
+    const rooms = await sql<RoomRow>('select * from rooms where id = $1 limit 1', [invitation.roomId]);
+    room = rooms[0] ? mapRoom(rooms[0]) : null;
+  }
+  return { invitation, room };
+}
+
 export async function getInvitationByToken(token: string) {
   await ensureSeedData();
   const invitations = await sql<InvitationRow>('select * from invitations where lower(token) = lower($1) limit 1', [
@@ -65,12 +75,21 @@ export async function getInvitationByToken(token: string) {
   ]);
   const invitation = invitations[0] ? mapInvitation(invitations[0]) : null;
   if (!invitation) return null;
-  let room: Room | null = null;
-  if (invitation.roomId) {
-    const rooms = await sql<RoomRow>('select * from rooms where id = $1 limit 1', [invitation.roomId]);
-    room = rooms[0] ? mapRoom(rooms[0]) : null;
-  }
-  return { invitation, room };
+  return withRoom(invitation);
+}
+
+/** One labeled sample invite — token lives only in the database, not in source. */
+export async function getDemoInvitation() {
+  await ensureSeedData();
+  const invitations = await sql<InvitationRow>('select * from invitations where is_demo = true limit 1');
+  const row = invitations[0];
+  if (!row) return null;
+  const matched = await withRoom(mapInvitation(row));
+  return {
+    token: row.token,
+    partyName: matched.invitation.partyName,
+    previewHint: matched.invitation.previewHint
+  };
 }
 
 export async function upsertRoom(input: {

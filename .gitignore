@@ -12,6 +12,7 @@ dist
 dist-ssr
 .next
 out
+.pglite-data
 *.local
 
 # Editor directories and files

@@ -1,9 +1,26 @@
-import type { Invitation, Room } from '../types/wedding';
+import type { EventId, HotelId } from '../types/wedding';
 
-/** Server-only sample data. Tokens are unguessable; never import this from client code. */
-export const DEMO_INVITE_TOKEN = 'inv_7c4e9a2f1b8d6e0c3a5f9d2e1b0c8a74';
+/** Server-only sample rows. No invite tokens here — tokens are generated when seeding the DB. */
+export type SeedRoom = {
+  id: string;
+  hotel: HotelId;
+  nights: 1 | 2;
+  occupants: string[];
+  label?: string;
+};
 
-export const seedRooms: Room[] = [
+export type SeedInvitation = {
+  id: string;
+  partyName: string;
+  members: string[];
+  invitedEvents: EventId[];
+  roomId: string | null;
+  previewHint: string;
+  /** At most one sample invitation may be marked demo for /api/invite/demo */
+  isDemo?: boolean;
+};
+
+export const seedRooms: SeedRoom[] = [
   {
     id: 'room-tan',
     hotel: 'ritz',
@@ -34,10 +51,9 @@ export const seedRooms: Room[] = [
   }
 ];
 
-export const seedInvitations: Invitation[] = [
+export const seedInvitations: SeedInvitation[] = [
   {
     id: 'inv-tan',
-    token: 'inv_b2e1c9a84f7d6e0b3a5c1d9e8f0a2b47',
     partyName: 'The Tan Family',
     members: ['Richard Tan', 'Mei Tan', 'Joanne Tan'],
     invitedEvents: ['welcome', 'tea', 'matrimony', 'cocktails', 'reception', 'afterparty'],
@@ -46,16 +62,15 @@ export const seedInvitations: Invitation[] = [
   },
   {
     id: 'inv-hk',
-    token: DEMO_INVITE_TOKEN,
     partyName: 'Jason & Priya',
     members: ['Jason Wong', 'Priya Shah'],
     invitedEvents: ['welcome', 'matrimony', 'cocktails', 'reception', 'afterparty'],
     roomId: 'room-hk',
-    previewHint: 'friends · 2 nights'
+    previewHint: 'friends · 2 nights',
+    isDemo: true
   },
   {
     id: 'inv-ldn',
-    token: 'inv_9f0a3d7e2c1b8a6f5e4d3c2b1a0f9e8d',
     partyName: 'Sophie & Tom',
     members: ['Sophie Clarke', 'Tom Hughes'],
     invitedEvents: ['welcome', 'matrimony', 'cocktails', 'reception', 'afterparty'],
@@ -64,7 +79,6 @@ export const seedInvitations: Invitation[] = [
   },
   {
     id: 'inv-marcus',
-    token: 'inv_1a2b3c4d5e6f708192a3b4c5d6e7f809',
     partyName: 'Marcus Lee',
     members: ['Marcus Lee'],
     invitedEvents: ['matrimony', 'cocktails', 'reception', 'afterparty'],
@@ -73,7 +87,6 @@ export const seedInvitations: Invitation[] = [
   },
   {
     id: 'inv-kenji',
-    token: 'inv_f809e7d6c5b4a39281706f5e4d3c2b1a',
     partyName: 'Kenji Tanaka',
     members: ['Kenji Tanaka'],
     invitedEvents: ['matrimony', 'cocktails', 'reception', 'afterparty'],
