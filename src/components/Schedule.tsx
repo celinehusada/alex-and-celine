@@ -50,11 +50,16 @@ export function Schedule() {
             </div>
             <div>
               <h3 className="font-display text-3xl md:text-4xl">{t(welcome.name)}</h3>
+              <p className="mt-1 text-sm italic text-blush/90">
+                {t({ en: 'Casual Welcome Dinner', id: 'Casual Welcome Dinner' })}
+              </p>
               <p className="mt-2 flex items-center gap-2 text-sm text-ivory/60">
                 <MapPinIcon className="h-4 w-4 shrink-0" aria-hidden="true" />
                 {t(welcome.venue)}
               </p>
-              {welcome.note && <p className="mt-1 text-sm text-ivory/60">{t(welcome.note)}</p>}
+              <p className="mt-1 text-sm text-ivory/60">
+                {t({ en: 'Dress code: White for Beach', id: 'Dress code: White for Beach' })}
+              </p>
             </div>
             <span className="justify-self-start whitespace-nowrap rounded-full border border-ivory/30 px-4 py-1.5 text-sm md:justify-self-end">
               {t(welcome.audience)}

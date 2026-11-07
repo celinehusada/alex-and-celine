@@ -102,7 +102,7 @@ export function RsvpConfirmation({
         </dl>
       }
 
-      {coming &&
+      {coming && guest.roomId &&
       <div className="mt-6 border-t border-ivory/10 pt-6">
           <p className="text-sm text-ivory/55">{t({ en: 'Stay', id: 'Akomodasi' })}</p>
           <p className="mt-1 font-display text-xl">{stayLabel}</p>
@@ -110,7 +110,7 @@ export function RsvpConfirmation({
       }
 
       <div className="mt-8 flex flex-wrap items-center gap-6">
-        {coming &&
+        {coming && guest.roomId &&
         <a
           href="#stay"
           className="inline-flex items-center gap-2 whitespace-nowrap rounded-full bg-blush px-6 py-3 text-sm font-medium text-oxblood transition-colors duration-150 hover:bg-ivory">

@@ -30,7 +30,7 @@ export function Nav() {
   const solid = scrolled || open;
   const { guest } = useGuest();
   // Stay details are personal — only link to them once the guest has found their invitation
-  const visibleLinks = guest ? links : links.filter((l) => l.href !== '#stay');
+  const visibleLinks = guest?.roomId ? links : links.filter((l) => l.href !== '#stay');
 
   return (
     <header
