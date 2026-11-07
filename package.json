@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "next dev -H 127.0.0.1 -p 5173",
     "build": "next build && node scripts/migrate.mjs",
+    "vercel-build": "next build && node scripts/migrate.mjs",
     "start": "next start -H 127.0.0.1 -p 5173",
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx"
   },
