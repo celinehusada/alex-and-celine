@@ -178,7 +178,7 @@ export function Admin() {
             Save token
           </button>
           <p className="md:col-span-2 text-xs text-ivory/50">
-            Data source: {dataset?.source ?? '…'}. Sample mode keeps edits in this browser until Postgres + ADMIN_TOKEN are connected on publish.
+            Data source: {dataset?.source ?? '…'}. Enter the admin token to load the shared guest list. Without it, this page only shows on-device drafts.
           </p>
         </section>
 
@@ -287,7 +287,7 @@ export function Admin() {
               <input
                 value={token}
                 onChange={(e) => setToken(e.target.value)}
-                placeholder="Link token (optional, e.g. uni-marcus)"
+                placeholder="Private link token (leave blank to auto-generate)"
                 className="h-11 w-full rounded-xl border border-ivory/20 bg-night px-3"
               />
               <input

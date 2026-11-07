@@ -1,20 +1,29 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { Loader2Icon } from 'lucide-react';
 import { useGuest } from '../../contexts/GuestContext';
 import { useLanguage } from '../../contexts/LanguageContext';
-import { seedInvitations } from '../../data/invitations';
-import { inviteUrl } from '../../utils/invitation';
+import { fetchDemoInviteToken } from '../../lib/weddingApi';
 
 export function GuestLookup() {
   const { openInvitation, status } = useGuest();
   const { t } = useLanguage();
-  const [origin, setOrigin] = useState('');
-  const loading = status === 'loading';
+  const [demoBusy, setDemoBusy] = useState(false);
+  const [demoError, setDemoError] = useState(false);
+  const loading = status === 'loading' || demoBusy;
   const notFound = status === 'error';
 
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
+  const tryDemo = async () => {
+    setDemoBusy(true);
+    setDemoError(false);
+    const demo = await fetchDemoInviteToken();
+    if (!demo) {
+      setDemoError(true);
+      setDemoBusy(false);
+      return;
+    }
+    await openInvitation(demo.token);
+    setDemoBusy(false);
+  };
 
   return (
     <div className="rounded-2xl bg-night p-6 text-ivory md:p-10">
@@ -35,7 +44,7 @@ export function GuestLookup() {
         </p>
       )}
 
-      {notFound && (
+      {(notFound || demoError) && (
         <p role="alert" className="mt-6 text-sm text-blush">
           {t({
             en: 'We couldn’t find that invitation link. Double-check the URL, or message Alex or Celine.',
@@ -47,29 +56,18 @@ export function GuestLookup() {
       <div className="mt-10 border-t border-ivory/10 pt-6">
         <p className="text-sm text-ivory/55">
           {t({
-            en: 'Previewing the site? Open a sample guest link:',
-            id: 'Sedang melihat pratinjau? Buka contoh tautan tamu:'
+            en: 'Previewing the site? Open one sample invitation (does not list other guests):',
+            id: 'Sedang melihat pratinjau? Buka satu contoh undangan (tanpa daftar tamu lain):'
           })}
         </p>
-        <div className="mt-3 flex flex-wrap gap-2">
-          {seedInvitations.map((invitation) => (
-            <button
-              key={invitation.id}
-              type="button"
-              onClick={() => void openInvitation(invitation.token)}
-              disabled={loading}
-              className="whitespace-nowrap rounded-full border border-ivory/15 px-3 py-1.5 text-xs transition-colors duration-150 hover:border-blush hover:text-blush"
-              title={origin ? inviteUrl(invitation.token, origin) : invitation.token}
-            >
-              {invitation.partyName} <span className="text-ivory/50">· {invitation.previewHint}</span>
-            </button>
-          ))}
-        </div>
-        {origin && (
-          <p className="mt-4 break-all text-xs text-ivory/40">
-            {t({ en: 'Link shape:', id: 'Bentuk tautan:' })} {inviteUrl('your-token', origin)}
-          </p>
-        )}
+        <button
+          type="button"
+          onClick={() => void tryDemo()}
+          disabled={loading}
+          className="mt-3 whitespace-nowrap rounded-full border border-ivory/15 px-4 py-2 text-sm transition-colors duration-150 hover:border-blush hover:text-blush disabled:opacity-60"
+        >
+          {t({ en: 'Try a sample invitation', id: 'Coba contoh undangan' })}
+        </button>
       </div>
     </div>
   );

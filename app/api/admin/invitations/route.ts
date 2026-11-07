@@ -15,11 +15,8 @@ type Body = {
   previewHint?: string;
 };
 
-function slugify(value: string) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-|-$/g, '');
+function newInviteToken() {
+  return `inv_${randomUUID().replace(/-/g, '')}`;
 }
 
 async function write(request: Request) {
@@ -33,9 +30,13 @@ async function write(request: Request) {
     return Response.json({ error: 'invalid_body' }, { status: 400 });
   }
 
+  const explicit = body.token?.trim().toLowerCase() ?? '';
+  // Never derive tokens from party names — they must be unguessable.
+  const token = explicit.length >= 20 ? explicit : newInviteToken();
+
   const invitation = await upsertInvitation({
     id: body.id?.trim() || `inv-${randomUUID().slice(0, 8)}`,
-    token: (body.token?.trim() || slugify(partyName) || `invite-${randomUUID().slice(0, 6)}`).toLowerCase(),
+    token,
     partyName,
     members,
     invitedEvents: body.invitedEvents ?? [],

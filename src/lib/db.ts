@@ -38,8 +38,7 @@ export async function ensureSeedData() {
     return;
   }
 
-  const { seedRooms } = await import('../data/rooms');
-  const { seedInvitations } = await import('../data/invitations');
+  const { seedRooms, seedInvitations } = await import('../server/seed');
 
   for (const room of seedRooms) {
     await sql(

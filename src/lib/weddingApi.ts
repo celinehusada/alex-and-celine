@@ -1,6 +1,4 @@
 import type { EventId, HotelId, Invitation, Room } from '../types/wedding';
-import { seedInvitations } from '../data/invitations';
-import { seedRooms } from '../data/rooms';
 
 const ADMIN_KEY = 'alex-celine-admin-token';
 const LOCAL_INVITES = 'alex-celine-invitations';
@@ -9,7 +7,12 @@ const LOCAL_ROOMS = 'alex-celine-rooms';
 export type WeddingDataset = {
   invitations: Invitation[];
   rooms: Room[];
-  source: 'api' | 'local' | 'seed';
+  source: 'api' | 'local';
+};
+
+type InvitePayload = {
+  invitation: Omit<Invitation, 'token'> & { token?: string };
+  room: Room | null;
 };
 
 function readLocal<T>(key: string, fallback: T): T {
@@ -47,50 +50,73 @@ export function setStoredAdminToken(token: string) {
   }
 }
 
+async function adminFetch(path: string, init: RequestInit = {}) {
+  const token = getStoredAdminToken();
+  const headers = new Headers(init.headers);
+  headers.set('content-type', 'application/json');
+  headers.set('accept', 'application/json');
+  if (token) headers.set('authorization', `Bearer ${token}`);
+  return fetch(path, { ...init, headers });
+}
+
+/** Full guest/room directory — admin only. Never call this from the public guest site. */
 export async function fetchDataset(): Promise<WeddingDataset> {
   try {
-    const res = await fetch('/api/wedding', { headers: { accept: 'application/json' } });
+    const res = await adminFetch('/api/admin/wedding');
     if (res.ok) {
       const data = (await res.json()) as { invitations: Invitation[]; rooms: Room[] };
       return { invitations: data.invitations, rooms: data.rooms, source: 'api' };
     }
   } catch {
-    // fall through to local/seed
+    // fall through to local-only edits
   }
 
-  const invitations = readLocal(LOCAL_INVITES, seedInvitations);
-  const rooms = readLocal(LOCAL_ROOMS, seedRooms);
-  const source = localStorage.getItem(LOCAL_INVITES) || localStorage.getItem(LOCAL_ROOMS) ? 'local' : 'seed';
-  return { invitations, rooms, source };
+  return {
+    invitations: readLocal<Invitation[]>(LOCAL_INVITES, []),
+    rooms: readLocal<Room[]>(LOCAL_ROOMS, []),
+    source: 'local'
+  };
 }
 
-export async function fetchInvitationByToken(token: string): Promise<{ invitation: Invitation; room: Room | null } | null> {
+export async function fetchInvitationByToken(
+  token: string
+): Promise<{ invitation: Invitation; room: Room | null } | null> {
   const normalized = token.trim().toLowerCase();
   try {
     const res = await fetch(`/api/invite/${encodeURIComponent(normalized)}`, {
       headers: { accept: 'application/json' }
     });
     if (res.ok) {
-      return (await res.json()) as { invitation: Invitation; room: Room | null };
+      const data = (await res.json()) as InvitePayload;
+      return {
+        invitation: {
+          ...data.invitation,
+          token: normalized
+        },
+        room: data.room
+      };
     }
     if (res.status === 404) return null;
   } catch {
-    // fall through
+    // fall through to on-device admin drafts only
   }
 
-  const { invitations, rooms } = await fetchDataset();
+  const invitations = readLocal<Invitation[]>(LOCAL_INVITES, []);
+  const rooms = readLocal<Room[]>(LOCAL_ROOMS, []);
   const invitation = invitations.find((i) => i.token.toLowerCase() === normalized);
   if (!invitation) return null;
   const room = invitation.roomId ? rooms.find((r) => r.id === invitation.roomId) ?? null : null;
   return { invitation, room };
 }
 
-async function adminFetch(path: string, init: RequestInit = {}) {
-  const token = getStoredAdminToken();
-  const headers = new Headers(init.headers);
-  headers.set('content-type', 'application/json');
-  if (token) headers.set('authorization', `Bearer ${token}`);
-  return fetch(path, { ...init, headers });
+export async function fetchDemoInviteToken(): Promise<{ token: string; partyName: string; previewHint: string } | null> {
+  try {
+    const res = await fetch('/api/invite/demo', { headers: { accept: 'application/json' } });
+    if (!res.ok) return null;
+    return (await res.json()) as { token: string; partyName: string; previewHint: string };
+  } catch {
+    return null;
+  }
 }
 
 export type InvitationInput = {
@@ -111,6 +137,10 @@ export type RoomInput = {
   label?: string;
 };
 
+function newInviteToken() {
+  return `inv_${crypto.randomUUID().replace(/-/g, '')}`;
+}
+
 export async function saveInvitation(input: InvitationInput): Promise<Invitation> {
   try {
     const res = await adminFetch('/api/admin/invitations', {
@@ -123,16 +153,9 @@ export async function saveInvitation(input: InvitationInput): Promise<Invitation
   }
 
   const dataset = await fetchDataset();
-  const token =
-    input.token?.trim().toLowerCase() ||
-    input.partyName
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, '-')
-      .replace(/^-|-$/g, '') ||
-    `invite-${Date.now()}`;
   const invitation: Invitation = {
     id: input.id ?? `inv-${crypto.randomUUID().slice(0, 8)}`,
-    token,
+    token: input.token?.trim().toLowerCase() || newInviteToken(),
     partyName: input.partyName.trim(),
     members: input.members.map((m) => m.trim()).filter(Boolean),
     invitedEvents: input.invitedEvents,
