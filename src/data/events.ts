@@ -23,11 +23,11 @@ export const events: WeddingEvent[] = [
   dayShort: { en: 'Sat', id: 'Sab' },
   time: '19:00',
   name: { en: 'Welcome Dinner', id: 'Makan Malam Penyambutan' },
-  venue: { en: 'Jimbaran Seafood, Jimbaran Bay', id: 'Jimbaran Seafood, Teluk Jimbaran' },
+  venue: { en: 'Menega Cafe, Jimbaran Beach', id: 'Menega Cafe, Pantai Jimbaran' },
   audience: allGuests,
   note: {
-    en: 'A relaxed seafood dinner by the beach to welcome everyone to Bali.',
-    id: 'Makan malam santai dengan hidangan laut di tepi pantai untuk menyambut semua tamu di Bali.'
+    en: 'Casual Welcome Dinner. Dress code: White for Beach.',
+    id: 'Casual Welcome Dinner. Dress code: White for Beach.'
   }
 },
 {

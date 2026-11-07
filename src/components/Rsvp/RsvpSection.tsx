@@ -20,8 +20,8 @@ export function RsvpSection() {
             {t({ en: 'Kindly reply by', id: 'Mohon konfirmasi kehadiran sebelum' })}{' '}
             <span className="text-ivory">{t(replyBy)}</span>.{' '}
             {t({
-              en: 'Please enter the code from your invitation to view your details.',
-              id: 'Masukkan kode dari undangan Anda untuk melihat detailnya.'
+              en: 'Open the personal link we sent you — it opens your invitation automatically.',
+              id: 'Buka tautan pribadi yang kami kirim — undangan Anda akan terbuka otomatis.'
             })}
           </p>
           <div className="mt-8 max-w-sm space-y-4 border-t border-ivory/15 pt-6 text-sm leading-relaxed text-ivory/65">

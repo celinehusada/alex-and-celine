@@ -11,7 +11,7 @@ import { RevealHeading } from '../RevealHeading';
 export function Stay() {
   const { guest, stayChoice } = useGuest();
   const { t, lang } = useLanguage();
-  const hotel = guest ? hotels.find((h) => h.id === guest.hotel) : undefined;
+  const hotel = guest?.roomId ? hotels.find((h) => h.id === guest.hotel) : undefined;
   if (!guest || !hotel) return null;
 
   const own = stayChoice === 'own';
