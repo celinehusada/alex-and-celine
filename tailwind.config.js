@@ -1,7 +1,6 @@
-export default {content: [
-  './index.html',
-  './src/**/*.{js,ts,jsx,tsx}'
-],
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: ['./index.html', './app/**/*.{js,ts,jsx,tsx}', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -16,12 +15,12 @@ export default {content: [
         oxblood: '#2E0E0B',
         night: '#1F0907',
         ink: '#211A14',
-        blush: '#E6CFC6',
+        blush: '#E6CFC6'
       },
       fontFamily: {
         display: ['"Cormorant Garamond"', 'Georgia', 'serif'],
-        sans: ['Jost', 'system-ui', 'sans-serif'],
-      },
-    },
-  },
+        sans: ['Jost', 'system-ui', 'sans-serif']
+      }
+    }
+  }
 };

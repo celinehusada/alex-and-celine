@@ -115,7 +115,7 @@ export function RsvpForm({ guest }: {guest: Guest;}) {
             }
             </fieldset>
 
-            <StayChoiceField guest={guest} value={f.stayChoice} onChange={f.setStayChoice} />
+            {guest.roomId ? <StayChoiceField guest={guest} value={f.stayChoice} onChange={f.setStayChoice} /> : null}
 
             <div className="mt-8">
               <label htmlFor="dietary" className="text-sm font-medium">

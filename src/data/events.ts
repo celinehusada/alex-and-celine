@@ -15,59 +15,72 @@ export const replyBy: Localized = {
 export const ceremonyStart = '2027-08-22T15:00:00+08:00';
 
 const allGuests: Localized = { en: 'All guests', id: 'Semua tamu' };
+const nightBefore: Localized = { en: 'Saturday, 21 August', id: 'Sabtu, 21 Agustus' };
+const nightBeforeShort: Localized = { en: 'Sat', id: 'Sab' };
 
 export const events: WeddingEvent[] = [
-{
-  id: 'welcome',
-  dayLabel: { en: 'Saturday, 21 August', id: 'Sabtu, 21 Agustus' },
-  dayShort: { en: 'Sat', id: 'Sab' },
-  time: '19:00',
-  name: { en: 'Welcome Dinner', id: 'Makan Malam Penyambutan' },
-  venue: { en: 'Jimbaran Seafood, Jimbaran Bay', id: 'Jimbaran Seafood, Teluk Jimbaran' },
-  audience: allGuests,
-  note: {
-    en: 'A relaxed seafood dinner by the beach to welcome everyone to Bali.',
-    id: 'Makan malam santai dengan hidangan laut di tepi pantai untuk menyambut semua tamu di Bali.'
+  {
+    id: 'promenade',
+    dayLabel: nightBefore,
+    dayShort: nightBeforeShort,
+    time: '17:00',
+    endTime: '18:00',
+    name: { en: '3K Sunset Walk/Run', id: '3K Sunset Walk/Run' },
+    venue: { en: 'Nusa Dua Promenade', id: 'Nusa Dua Promenade' },
+    audience: allGuests
+  },
+  {
+    id: 'welcome',
+    dayLabel: nightBefore,
+    dayShort: nightBeforeShort,
+    time: '19:00',
+    name: { en: 'Welcome Dinner (Balinese Seafood!)', id: 'Welcome Dinner (Balinese Seafood!)' },
+    venue: { en: 'Menega Cafe, Jimbaran Beach', id: 'Menega Cafe, Pantai Jimbaran' },
+    audience: allGuests,
+    note: {
+      en: 'Casual Welcome Dinner. Dress code: White for Beach.',
+      id: 'Casual Welcome Dinner. Dress code: White for Beach.'
+    }
+  },
+  {
+    id: 'tea',
+    time: '14:00',
+    name: { en: 'Tea Ceremony', id: 'Upacara Minum Teh (Teapai)' },
+    venue: { en: 'Meeting Room, The Ritz-Carlton', id: 'Ruang Pertemuan, The Ritz-Carlton' },
+    audience: { en: 'Family only', id: 'Khusus keluarga' },
+    restrictedLabel: { en: 'Family only', id: 'Khusus keluarga' }
+  },
+  {
+    id: 'matrimony',
+    time: '15:00',
+    name: { en: 'Holy Matrimony', id: 'Pemberkatan Pernikahan' },
+    venue: { en: 'Majestic Chapel, The Ritz-Carlton', id: 'Majestic Chapel, The Ritz-Carlton' },
+    audience: { en: 'First come, first served', id: 'Siapa cepat, dia dapat' },
+    note: {
+      en: 'The chapel seats 80 — RSVP early to get a seat.',
+      id: 'Kapel hanya dapat menampung 80 orang — segera RSVP untuk mendapatkan tempat.'
+    }
+  },
+  {
+    id: 'cocktails',
+    time: '17:00',
+    name: { en: 'Sunset Hours', id: 'Sunset Hours' },
+    venue: { en: 'Cliff Lawn, The Ritz-Carlton', id: 'Cliff Lawn, The Ritz-Carlton' },
+    audience: allGuests
+  },
+  {
+    id: 'reception',
+    time: '18:30',
+    name: { en: 'Reception', id: 'Resepsi' },
+    venue: { en: 'Cliff Lawn, The Ritz-Carlton', id: 'Cliff Lawn, The Ritz-Carlton' },
+    audience: allGuests
+  },
+  {
+    id: 'afterparty',
+    time: '22:30',
+    endLabel: { en: 'until drop', id: 'until drop' },
+    name: { en: 'After Party', id: 'After Party' },
+    venue: { en: 'Grand Ballroom, The Ritz-Carlton', id: 'Grand Ballroom, The Ritz-Carlton' },
+    audience: allGuests
   }
-},
-{
-  id: 'tea',
-  time: '14:00',
-  name: { en: 'Tea Ceremony', id: 'Upacara Minum Teh (Teapai)' },
-  venue: { en: 'Meeting Room, The Ritz-Carlton', id: 'Ruang Pertemuan, The Ritz-Carlton' },
-  audience: { en: 'Family only', id: 'Khusus keluarga' },
-  restrictedLabel: { en: 'Family only', id: 'Khusus keluarga' }
-},
-{
-  id: 'matrimony',
-  time: '15:00',
-  name: { en: 'Holy Matrimony', id: 'Pemberkatan Pernikahan' },
-  venue: { en: 'Majestic Chapel, The Ritz-Carlton', id: 'Majestic Chapel, The Ritz-Carlton' },
-  audience: { en: 'First come, first served', id: 'Siapa cepat, dia dapat' },
-  note: {
-    en: 'The chapel seats 80 — RSVP early to get a seat.',
-    id: 'Kapel hanya dapat menampung 80 orang — segera RSVP untuk mendapatkan tempat.'
-  }
-},
-{
-  id: 'cocktails',
-  time: '17:00',
-  name: { en: 'Sunset Hours', id: 'Sunset Hours' },
-  venue: { en: 'Cliff Lawn, The Ritz-Carlton', id: 'Cliff Lawn, The Ritz-Carlton' },
-  audience: allGuests
-},
-{
-  id: 'reception',
-  time: '18:30',
-  name: { en: 'Reception', id: 'Resepsi' },
-  venue: { en: 'Cliff Lawn, The Ritz-Carlton', id: 'Cliff Lawn, The Ritz-Carlton' },
-  audience: allGuests
-},
-{
-  id: 'afterparty',
-  time: '22:30',
-  endTime: '01:00',
-  name: { en: 'After Party', id: 'After Party' },
-  venue: { en: 'Grand Ballroom, The Ritz-Carlton', id: 'Grand Ballroom, The Ritz-Carlton' },
-  audience: allGuests
-}];
+];

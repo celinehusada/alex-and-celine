@@ -1,8 +1,9 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { guests } from '../data/guests';
+import { fetchInvitationByToken } from '../lib/weddingApi';
+import { readInviteTokenFromLocation, resolveGuest } from '../utils/invitation';
 import type { Guest, StayChoice } from '../types/wedding';
 
-type LookupStatus = 'idle' | 'loading' | 'error';
+type LookupStatus = 'idle' | 'loading' | 'error' | 'missing';
 
 const GUEST_KEY = 'alex-celine-guest-code';
 const STAY_KEY = 'alex-celine-stay-choice';
@@ -13,23 +14,13 @@ interface GuestContextValue {
   status: LookupStatus;
   stayChoice: StayChoice;
   setStayChoice: (choice: StayChoice) => void;
-  findInvitation: (code: string) => Promise<boolean>;
+  openInvitation: (token: string) => Promise<boolean>;
   clearGuest: () => void;
   saveRsvpDraft: (payload: unknown) => void;
   loadRsvpDraft: () => unknown | null;
 }
 
 const GuestContext = createContext<GuestContextValue | null>(null);
-
-function loadGuest(): Guest | null {
-  try {
-    const code = localStorage.getItem(GUEST_KEY);
-    if (!code) return null;
-    return guests.find((g) => g.code === code) ?? null;
-  } catch {
-    return null;
-  }
-}
 
 function loadStay(): StayChoice {
   try {
@@ -40,19 +31,11 @@ function loadStay(): StayChoice {
   }
 }
 
-export function GuestProvider({ children }: {children: React.ReactNode;}) {
-  const [guest, setGuest] = useState<Guest | null>(loadGuest);
-  const [status, setStatus] = useState<LookupStatus>('idle');
+export function GuestProvider({ children }: { children: React.ReactNode }) {
+  const [guest, setGuest] = useState<Guest | null>(null);
+  const [status, setStatus] = useState<LookupStatus>('loading');
   const [stayChoice, setStayChoiceState] = useState<StayChoice>(loadStay);
-
-  useEffect(() => {
-    try {
-      if (guest) localStorage.setItem(GUEST_KEY, guest.code);
-      else localStorage.removeItem(GUEST_KEY);
-    } catch {
-      // Demo persistence is best-effort.
-    }
-  }, [guest]);
+  const [booted, setBooted] = useState(false);
 
   const setStayChoice = useCallback((choice: StayChoice) => {
     setStayChoiceState(choice);
@@ -63,27 +46,87 @@ export function GuestProvider({ children }: {children: React.ReactNode;}) {
     }
   }, []);
 
-  const findInvitation = useCallback(async (code: string) => {
-    setStatus('loading');
-    await new Promise((resolve) => setTimeout(resolve, 650));
-    const normalized = code.trim().toUpperCase();
-    const match = guests.find((g) => g.code === normalized);
-    if (match) {
-      setGuest(match);
+  const openInvitation = useCallback(
+    async (token: string) => {
+      setStatus('loading');
+      const match = await fetchInvitationByToken(token);
+      if (!match) {
+        setGuest(null);
+        setStatus('error');
+        return false;
+      }
+      const resolved =
+        match.room || match.invitation.roomId
+          ? resolveGuest(match.invitation, match.room ? [match.room] : [])
+          : resolveGuest(match.invitation, []);
+      // If roomId set but room missing from single-room array, still show invitation without room occupants
+      const guestView: Guest =
+        resolved ??
+        ({
+          code: match.invitation.token,
+          partyName: match.invitation.partyName,
+          members: match.invitation.members,
+          invitedEvents: match.invitation.invitedEvents,
+          hotel: match.room?.hotel ?? 'ritz',
+          nights: match.room?.nights,
+          roomWith: match.room?.occupants,
+          previewHint: match.invitation.previewHint,
+          roomId: match.invitation.roomId
+        } satisfies Guest);
+
+      setGuest(guestView);
       setStayChoice('provided');
       setStatus('idle');
+      try {
+        localStorage.setItem(GUEST_KEY, guestView.code);
+        const url = new URL(window.location.href);
+        url.searchParams.set('invite', guestView.code);
+        window.history.replaceState({}, '', url.toString());
+      } catch {
+        // ignore
+      }
       return true;
-    }
-    setStatus('error');
-    return false;
-  }, [setStayChoice]);
+    },
+    [setStayChoice]
+  );
+
+  useEffect(() => {
+    if (booted) return;
+    setBooted(true);
+
+    const boot = async () => {
+      const fromUrl = readInviteTokenFromLocation();
+      if (fromUrl) {
+        await openInvitation(fromUrl);
+        return;
+      }
+
+      try {
+        const saved = localStorage.getItem(GUEST_KEY);
+        if (saved) {
+          const ok = await openInvitation(saved);
+          if (ok) return;
+        }
+      } catch {
+        // ignore
+      }
+
+      setStatus('missing');
+    };
+
+    void boot();
+  }, [booted, openInvitation]);
 
   const clearGuest = useCallback(() => {
     setGuest(null);
     setStayChoice('provided');
-    setStatus('idle');
+    setStatus('missing');
     try {
+      localStorage.removeItem(GUEST_KEY);
       localStorage.removeItem(RSVP_KEY);
+      const url = new URL(window.location.href);
+      url.searchParams.delete('invite');
+      window.history.replaceState({}, '', url.toString());
     } catch {
       // ignore
     }
@@ -112,12 +155,12 @@ export function GuestProvider({ children }: {children: React.ReactNode;}) {
       status,
       stayChoice,
       setStayChoice,
-      findInvitation,
+      openInvitation,
       clearGuest,
       saveRsvpDraft,
       loadRsvpDraft
     }),
-    [guest, status, stayChoice, setStayChoice, findInvitation, clearGuest, saveRsvpDraft, loadRsvpDraft]
+    [guest, status, stayChoice, setStayChoice, openInvitation, clearGuest, saveRsvpDraft, loadRsvpDraft]
   );
 
   return <GuestContext.Provider value={value}>{children}</GuestContext.Provider>;
