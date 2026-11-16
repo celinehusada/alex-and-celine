@@ -35,7 +35,14 @@ export function Admin() {
   const [membersText, setMembersText] = useState('');
   const [token, setToken] = useState('');
   const [previewHint, setPreviewHint] = useState('');
-  const [selectedEvents, setSelectedEvents] = useState<EventId[]>(['welcome', 'matrimony', 'cocktails', 'reception', 'afterparty']);
+  const [selectedEvents, setSelectedEvents] = useState<EventId[]>([
+    'promenade',
+    'welcome',
+    'matrimony',
+    'cocktails',
+    'reception',
+    'afterparty'
+  ]);
   const [roomId, setRoomId] = useState<string>('');
   const [editingInviteId, setEditingInviteId] = useState<string | null>(null);
 
@@ -63,7 +70,7 @@ export function Admin() {
     setMembersText('');
     setToken('');
     setPreviewHint('');
-    setSelectedEvents(['welcome', 'matrimony', 'cocktails', 'reception', 'afterparty']);
+    setSelectedEvents(['promenade', 'welcome', 'matrimony', 'cocktails', 'reception', 'afterparty']);
     setRoomId('');
   };
 

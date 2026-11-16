@@ -1,8 +1,18 @@
 import React from 'react';
-import { MoonIcon, MoonStarIcon, SunDimIcon, SunIcon, SunMediumIcon, SunsetIcon, UtensilsIcon } from 'lucide-react';
+import {
+  FootprintsIcon,
+  MoonIcon,
+  MoonStarIcon,
+  SunDimIcon,
+  SunIcon,
+  SunMediumIcon,
+  SunsetIcon,
+  UtensilsIcon
+} from 'lucide-react';
 import type { EventId } from '../types/wedding';
 
 const icons: Record<EventId, typeof SunIcon> = {
+  promenade: FootprintsIcon,
   welcome: UtensilsIcon,
   tea: SunIcon,
   matrimony: SunMediumIcon,

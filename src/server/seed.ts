@@ -56,7 +56,7 @@ export const seedInvitations: SeedInvitation[] = [
     id: 'inv-tan',
     partyName: 'The Tan Family',
     members: ['Richard Tan', 'Mei Tan', 'Joanne Tan'],
-    invitedEvents: ['welcome', 'tea', 'matrimony', 'cocktails', 'reception', 'afterparty'],
+    invitedEvents: ['promenade', 'welcome', 'tea', 'matrimony', 'cocktails', 'reception', 'afterparty'],
     roomId: 'room-tan',
     previewHint: 'family · all events'
   },
@@ -64,7 +64,7 @@ export const seedInvitations: SeedInvitation[] = [
     id: 'inv-hk',
     partyName: 'Jason & Priya',
     members: ['Jason Wong', 'Priya Shah'],
-    invitedEvents: ['welcome', 'matrimony', 'cocktails', 'reception', 'afterparty'],
+    invitedEvents: ['promenade', 'welcome', 'matrimony', 'cocktails', 'reception', 'afterparty'],
     roomId: 'room-hk',
     previewHint: 'friends · 2 nights',
     isDemo: true
@@ -73,7 +73,7 @@ export const seedInvitations: SeedInvitation[] = [
     id: 'inv-ldn',
     partyName: 'Sophie & Tom',
     members: ['Sophie Clarke', 'Tom Hughes'],
-    invitedEvents: ['welcome', 'matrimony', 'cocktails', 'reception', 'afterparty'],
+    invitedEvents: ['promenade', 'welcome', 'matrimony', 'cocktails', 'reception', 'afterparty'],
     roomId: 'room-ldn',
     previewHint: 'friends · 2 nights'
   },

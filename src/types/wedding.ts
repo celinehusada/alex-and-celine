@@ -1,6 +1,7 @@
 import type { Localized } from './i18n';
 
 export type EventId =
+'promenade' |
 'welcome' |
 'tea' |
 'matrimony' |
@@ -22,6 +23,8 @@ export interface WeddingEvent {
   /** 24-hour time, e.g. "19:00" */
   time: string;
   endTime?: string;
+  /** When set, shown instead of “until {endTime}” (e.g. “until drop”) */
+  endLabel?: Localized;
   name: Localized;
   venue: Localized;
   audience: Localized;
